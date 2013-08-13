@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# @author Brent Douglas <brent.n.douglas@gmail.com>
+#
+
+if [ ${#} -ne 2 ]; then
+  echo "Usage: $(basename $0) old_version new_version"
+  exit 65
+fi
+
+OLD_VERSION=${1}
+NEW_VERSION=${2}
+
+echo "Changing version from ${OLD_VERSION} to ${NEW_VERSION}"
+
+FILES=$(git grep "<version>${OLD_VERSION}</version>" | cut -d: -f 1 | sort -u)
+
+for FILE in ${FILES}
+do
+  echo "Changing ${FILE}"
+  sed --in-place=".bak" "s/${OLD_VERSION}/${NEW_VERSION}/g" ${FILE}
+  rm "${FILE}.bak"
+done

@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# @author Brent Douglas <brent.n.douglas@gmail.com>
+#
+
+ANT_OPTS=-Xmx1024m -XX:MaxPermSize=512m
+
+ant clean
+cd jsf-tools
+mvn clean install -P default-tools.jar
+cd ..
+ant main impl split-impl
+mvn install:install-file -Dfile=${HOME}/work/mojarra/jsf-ri/build/lib/jboss-jsf-impl.jar -DpomFile=jsf-impl-2.1.23-brite.pom

@@ -56,6 +56,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -348,37 +349,52 @@ public class MenuRenderer extends HtmlBasicInputRenderer {
 
             // see if the collectionType hint is available, if so, use that
             Object collectionTypeHint = uiSelectMany.getAttributes().get("collectionType");
-            if (collectionTypeHint != null) {
-                targetCollection = createCollectionFromHint(collectionTypeHint);
-            } else {
-                // try to get a new Collection to store the values based
-                // by trying to create a clone
+            if ("raw".equals(collectionTypeHint)) {
                 Collection currentValue = (Collection) uiSelectMany.getValue();
-                if (currentValue != null) {
-                    targetCollection = cloneValue(currentValue);
+                targetCollection = currentValue == null
+                        ? Collections.emptyList()
+                        : currentValue;
+
+                //noinspection ManualArrayToCollectionCopy
+                for (Object v : values) {
+                    if (!targetCollection.contains(v)) {
+                        //noinspection unchecked
+                        targetCollection.add(v);
+                    }
+                }
+            } else {
+                if (collectionTypeHint != null) {
+                    targetCollection = createCollectionFromHint(collectionTypeHint);
+                } else {
+                    // try to get a new Collection to store the values based
+                    // by trying to create a clone
+                    Collection currentValue = (Collection) uiSelectMany.getValue();
+                    if (currentValue != null) {
+                        targetCollection = cloneValue(currentValue);
+                    }
+
+                    // No cloned instance so if the modelType happens to represent a
+                    // concrete type (probably not the norm) try to reflect a
+                    // no-argument constructor and invoke if available.
+                    if (targetCollection == null) {
+                        //noinspection unchecked
+                        targetCollection =
+                                createCollection(currentValue, modelType);
+                    }
+
+                    // No suitable instance to work with, make our best guess
+                    // based on the type.
+                    if (targetCollection == null) {
+                        //noinspection unchecked
+                        targetCollection = bestGuess(modelType, values.length);
+                    }
                 }
 
-                // No cloned instance so if the modelType happens to represent a
-                // concrete type (probably not the norm) try to reflect a
-                // no-argument constructor and invoke if available.
-                if (targetCollection == null) {
+                //noinspection ManualArrayToCollectionCopy
+                for (Object v : values) {
                     //noinspection unchecked
-                    targetCollection =
-                          createCollection(currentValue, modelType);
+                    targetCollection.add(v);
                 }
-
-                // No suitable instance to work with, make our best guess
-                // based on the type.
-                if (targetCollection == null) {
-                    //noinspection unchecked
-                    targetCollection = bestGuess(modelType, values.length);
-                }
-            }
-
-            //noinspection ManualArrayToCollectionCopy
-            for (Object v : values) {
-                //noinspection unchecked
-                targetCollection.add(v);
             }
 
             return targetCollection;
@@ -390,7 +406,7 @@ public class MenuRenderer extends HtmlBasicInputRenderer {
         } else {
             throw new FacesException("Target model Type is no a Collection or Array");
         }
-        
+
     }
 
 
@@ -861,7 +877,7 @@ public class MenuRenderer extends HtmlBasicInputRenderer {
 
         // Now, write the buffered option content
         writer.write(bufferedWriter.toString());
-        
+
         writer.endElement("select");
 
     }
@@ -980,7 +996,7 @@ public class MenuRenderer extends HtmlBasicInputRenderer {
         if (SortedSet.class.isAssignableFrom(type)) {
             return new TreeSet();
         } else if (Queue.class.isAssignableFrom(type)) {
-           return new LinkedList(); 
+           return new LinkedList();
         } else if (Set.class.isAssignableFrom(type)) {
             return new HashSet(initialSize);
         } else {

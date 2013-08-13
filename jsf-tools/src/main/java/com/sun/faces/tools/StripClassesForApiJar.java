@@ -44,41 +44,44 @@ package com.sun.faces.tools;
 
 
 import com.sun.tools.javac.api.JavacTaskImpl;
+import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Scope;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.code.Flags;
+import com.sun.tools.javac.code.Symbol.ClassSymbol;
+import com.sun.tools.javac.code.Symbol.CompletionFailure;
+import com.sun.tools.javac.code.Symbol.PackageSymbol;
+import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.jvm.ClassReader;
 import com.sun.tools.javac.jvm.ClassWriter;
 import com.sun.tools.javac.jvm.Pool;
 import com.sun.tools.javac.processing.JavacProcessingEnvironment;
 import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Name;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Collections;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedOptions;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileManager.Location;
 import javax.tools.JavaFileObject;
-import static javax.tools.JavaFileObject.Kind.CLASS;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
+
+import static javax.tools.JavaFileObject.Kind.CLASS;
 
 /**
  * Used to generate a "symbol file" representing rt.jar that only
@@ -181,7 +184,7 @@ public class StripClassesForApiJar extends AbstractProcessor {
         com.sun.tools.javac.main.JavaCompiler compiler = com.sun.tools.javac.main.JavaCompiler.instance(task.getContext());
         ClassReader reader = ClassReader.instance(task.getContext());
         ClassWriter writer = ClassWriter.instance(task.getContext());
-        Name.Table names = Name.Table.instance(task.getContext());
+        // Name.Table names = new UnsharedNameTable(Names.instance(task.getContext()));
         Type.moreInfo = true;
         Pool pool = new Pool();
 	ClassSymbol cs = null;

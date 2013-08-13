@@ -1,0 +1,29 @@
+# Ant && Maven output
+src/generated
+target
+build/
+dependencies
+
+# Properties
+build.properties
+
+# RPM's
+*.rpm
+
+# VIM
+*.swp
+
+# JOE
+*~
+
+# IDEA
+*.iml
+*.ipr
+*.iws
+.idea/
+idea
+
+# Eclipse
+.metadata
+.project
+.settings
