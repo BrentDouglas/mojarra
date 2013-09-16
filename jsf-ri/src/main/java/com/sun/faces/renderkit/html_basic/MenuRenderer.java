@@ -349,13 +349,20 @@ public class MenuRenderer extends HtmlBasicInputRenderer {
 
             // see if the collectionType hint is available, if so, use that
             Object collectionTypeHint = uiSelectMany.getAttributes().get("collectionType");
-            if ("raw".equals(collectionTypeHint)) {
+
+            /**
+             * Hibernate collections can't be copied as they will lose the session backing them
+             * which will present as a LazyLoadingException. This hack mostly avoids it by
+             * providing the original collection.
+             *
+             * The #contains check is required to stop hibernate complaining and seems to work
+             * correctly but I did not check if that is expected behavior for this component.
+             */
+            if ("brite-hibernate-hack-see-mojarra-build".equals(collectionTypeHint)) {
                 Collection currentValue = (Collection) uiSelectMany.getValue();
                 targetCollection = currentValue == null
                         ? Collections.emptyList()
                         : currentValue;
-
-                //noinspection ManualArrayToCollectionCopy
                 for (Object v : values) {
                     if (!targetCollection.contains(v)) {
                         //noinspection unchecked

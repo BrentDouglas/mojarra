@@ -3,7 +3,7 @@
 # @author Brent Douglas <brent.n.douglas@gmail.com>
 #
 
-ANT_OPTS=-Xmx1024m -XX:MaxPermSize=512m
+ANT_OPTS="-Xmx1024m -XX:MaxPermSize=512m"
 
 ant clean
 cd jsf-tools
